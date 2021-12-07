@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>Web Scraper</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <!-- Bootstrap Icon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/calendar.css" type="text/css">
+    <link rel="stylesheet" href="/style.css" type="text/css">
+  </head>  
+  <body>
+    <!-- Nav bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a href="/admin/subscription" class="navbar-brand">Event Seeker</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a href="/" class="nav-link active">Home</a>
+            </li>
+            <li class="nav-item">
+              <a href="/requestEvent" class="nav-link">Request Event</a>
+            </li>
+            <li class="nav-item">
+              <a href="mailto:info@gloriousrecovery.org" class="nav-link">Contact Us</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Featured Section -->
+    <div class="container p-3 rounded mb-0 pb-0">
+      <div class="row justify-content-center mb-0 pb-0">
+        <h3 calss="mb-0 pb-0">Featured Events: </h3>
+        <p class="text-danger"><em><strong>* Pinned events will be cleared when you clear the browser cache/history. *</strong></em></p>
+      </div>
+    </div>
+    <div id="featured-container" class="container p-3 rounded mt-0">
+      <div class="row justify-content-center">
+      </div>
+    </div>
+
+
+    <!-- All Events -->
+    <hr>
+    <div class="container p-3 rounded my-3">
+      <div class="row justify-content-center">
+        <h3>All Events: </h3>
+      </div>
+    </div>
+    <!-- Filter And Change Display Section -->
+    <div class="container bg-dark my-3 p-3">
+      <div class="row">
+        <!-- Filter -->
+        <div class="col-6 text-white">
+          <div class="container">
+            <div class="row">
+              <h3 class="col-12">Filter: </h3>
+            </div>
+            <!-- Filter week -->
+            <form class="row" id="filter-time">
+              <div class="col-12 my-2">
+                <select name="filter-week " id="filter-week" class="form-select">
+                  <option value="all">All Time</option>
+                  <option value="thisWeek">This Week</option>
+                  <option value="nextWeek">Next Week</option>
+                </select>
+              </div>
+            </form>
+            <!-- Filter Organization -->
+            <form class="row" id="filter-organization">
+              <div class="col-12 my-2">
+                <select name="filter-organization " id="filter-organization-name" class="form-select">
+                  <option value="all">All Organization</option>
+                </select>
+              </div>
+            </form>
+            <!-- Filter Category -->
+            <form class="row" id="filter-category">
+              <div class="col-12 my-2">
+                <select name="filter-week " id="filter-category-name" class="form-select">
+                  <option value="all">All Category</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Change Display -->
+        <div class="col-4 text-white">
+          <div class="container">
+            <div class="row">
+              <h3 class="col-12">Calendar: </h3>
+            </div>
+            <form class="row" id="display-section">
+              <!-- Rounded switch -->
+              <label class="switch mx-3">
+                  <input type="checkbox">
+                  <span class="slider round"></span>
+              </label>
+            </form>
+          </div>
+        </div>
+        <!-- End Change Display Section -->
+      </div>
+    </div>
+
+    <!-- Check if any event exist -->
+    <% if(listOfEvents.length === 0) { %>
+      <h1>no events, try again later</h1>
+    <% } %>
+
+    <!-- List View -->
+    <div id="list-container" class="container p-3 rounded my-3">
+      <div class="row justify-content-center">
+        <% for (let i = 0; i < listOfEvents.length; i++) { %>
+          <div class="container card shadow my-3">
+            <div class="row">
+              <!-- Img/Category -->
+              <div class="col-12 col-sm-4 my-2">
+                <!-- Category -->
+                <div class="mb-1">
+                  <% for (let c = 0; c < listOfEvents[i].category.length; c++) { %>
+                    <button class="text-light bg-dark border rounded p-1 category-btn">
+                      <%= listOfEvents[i].category[c] %>
+                    </button>
+                  <% } %>
+                </div>
+                <!-- Image -->
+                <% if (listOfEvents[i].isManuallyAdded) { %>
+                    <img class="img-fluid w-100 rounded" src="data:image/<%= listOfEvents[i].image.contentType %>;base64,<%= listOfEvents[i].image.data.toString('base64')%>" alt="Image">  
+                <% } else  { %>
+                  <img class="img-fluid w-100 rounded" src="<%= listOfEvents[i].image %>" alt="Image" />
+                <% } %>
+              </div>
+              <!-- Content -->
+              <div class="col-12 col-sm-8 my-2 d-flex flex-column pt-4">
+                <!-- Tickets -->
+                <% if(listOfEvents[i].ticket) { %>
+                  <a href="<%= listOfEvents[i].ticketLink %>" class="text-decoration-none" >
+                    <h5 class="text-dark bg-warning">Tickets available here</h5>
+                  </a>
+                <% } %>
+                <!-- Time -->
+                <h4 class="text-danger"><%= listOfEvents[i].dateTime %> 
+                  <% if (listOfEvents[i].endTime) { %>
+                    – <%= listOfEvents[i].endTime %>
+                  <% } %>
+                </h4>
+                <!-- Title -->
+                <h3 class="fw-bold">
+                  <a href="<%= listOfEvents[i].linkToOriginalPost %>" class="link-to-original-post" >
+                    <%= listOfEvents[i].title %>
+                  </a>
+                </h3>
+                <!-- Location -->
+                <h4><%= listOfEvents[i].address %></h4>
+                <!-- Event by -->
+                <h6>Event by: <%= listOfEvents[i].eventBy %></h6>
+                <!-- Button Container -->
+                <div class="button-container mt-auto">
+                  <!-- Expand Button -->
+                  <div class="event-btn">
+                    <button type="button" class="btn btn-primary text-light m-1 px-3 fit-btn" onclick="expandEventAll(<%= i %>)">
+                      <i class="bi bi-arrows-expand"></i> Expand
+                    </button>
+                  </div>
+                  <!-- Share Button -->
+                  <div class="btn-group event-btn">
+                    <button type="button" class="btn btn-primary dropdown-toggle fit-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bi bi-share-fill"></i> Share
+                    </button>
+                    <ul class="dropdown-menu share-dropdown shadow-lg">
+                      <li><a href="https://www.facebook.com/sharer.php?u=<%= listOfEvents[i].linkToOriginalPost %>" target="_blank" class="facebook-btn"><i class="bi bi-facebook"></i></a></li>
+                      <li><a href="https://twitter.com/share?url=<%= listOfEvents[i].linkToOriginalPost %>&text=<%= listOfEvents[i].title %>: " target="_blank" class="twitter-btn"><i class="bi bi-twitter"></i></a></li>
+                      <li><a onclick="copyToClipboard('<%= listOfEvents[i].linkToOriginalPost %>')" class="clipboard-url"><i class="bi bi-clipboard"></i></a></li>
+                    </ul>
+                  </div>
+                  <!-- Featured Button -->
+                  <div class="event-btn">
+                    <button type="button" class="btn btn-primary pin-btn-all text-light m-1 px-3 fit-btn" value="pin" onclick="pinClicked(<%= i %>)">
+                      <i class="bi bi-pin-fill"></i> Pin
+                    </button>
+                  </div>
+                </div>
+                <!-- End Button Container -->
+              </div>
+            </div>
+            <!-- Extra Info -->
+            <div class="row align-items-center extra-info-all" style="display:none;">
+              <!-- Organization -->
+              <h5 class="organization-name">
+                Organization: 
+                <% for (let j = 0; j < listOfEvents[i].organizationInfo.length; j++) { %>
+                  <a href="<%= listOfEvents[i].organizationInfo[j].link %>" class="organization-link" >
+                    <%= listOfEvents[i].organizationInfo[j].name %>
+                  </a>, 
+                <% } %>
+              </h5>
+              <!-- Description -->
+              <p>Description: <%= listOfEvents[i].description %></p>
+            </div>
+            <!-- End Extra Info -->
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+
+    <!-- Calendar View -->
+    <div id="calendar-styles" style="display: none;">
+      <div class="content">
+        <div class="calendar-container">
+          <div class="calendar"> 
+            <div class="year-header"> 
+              <span class="left-button" id="prev"> &lang; </span> 
+              <span class="year" id="label"></span> 
+              <span class="right-button" id="next"> &rang; </span>
+            </div> 
+            <table class="months-table"> 
+              <tbody>
+                <tr class="months-row">
+                  <td class="month">Jan</td> 
+                  <td class="month">Feb</td> 
+                  <td class="month">Mar</td> 
+                  <td class="month">Apr</td> 
+                  <td class="month">May</td> 
+                  <td class="month">Jun</td> 
+                  <td class="month">Jul</td>
+                  <td class="month">Aug</td> 
+                  <td class="month">Sep</td> 
+                  <td class="month">Oct</td>          
+                  <td class="month">Nov</td>
+                  <td class="month">Dec</td>
+                </tr>
+              </tbody>
+            </table> 
+            
+            <table class="days-table"> 
+              <td class="day">Sun</td> 
+              <td class="day">Mon</td> 
+              <td class="day">Tue</td> 
+              <td class="day">Wed</td> 
+              <td class="day">Thu</td> 
+              <td class="day">Fri</td> 
+              <td class="day">Sat</td>
+            </table> 
+            <div class="frame"> 
+              <table class="dates-table"> 
+                  <tbody class="tbody">             
+                  </tbody> 
+              </table>
+            </div> 
+          </div>
+        </div>
+        <div class="events-container">
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="extra-space" style="margin-bottom: 300px;"></div>
+
+    <!-- Bootstrap script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- For Buffer images (manually added images) -->
+    <script src="https://bundle.run/buffer@6.0.3"></script>
+
+    <!-- Scripts -->
+    <%- include ('scripts/client.ejs') %>
+    <%- include ('scripts/renderListContainer.ejs') %>
+    <%- include ('scripts/renderFeatured.ejs') %>
+    <%- include ('scripts/calendar.ejs') %>
+    <%- include ('scripts/filters.ejs') %>
+    
+
+    <script>
+      $(document).ready(function() {
+        removePastEventPins();
+        renderFeatured(); 
+        rerenderPinWithLS();
+        featuredList = JSON.parse(localStorage.getItem("featuredList"));
+        if (featuredList == null) {
+          featuredList = {};
+        };
+      });
+
+      featuredList = JSON.parse(localStorage.getItem("featuredList"));
+      if (featuredList == null) {
+        featuredList = {};
+      };
+
+      // get uuid or linkToOriginalPost
+      function getId(index) {
+        let id;
+          if (listOfEvents[index].isManuallyAdded) {
+            id = listOfEvents[index].uuid;
+          } else {
+            id = listOfEvents[index].linkToOriginalPost;
+          }
+        return id;
+      }
+      // pin add or remove
+      function pinClicked(index) {
+        let pinBtn = document.querySelectorAll(".pin-btn-all");        
+        $(pinBtn[index]).removeClass("btn-primary").addClass("btn-danger");
+        
+        if ($(pinBtn[index]).attr("value") == "pin") {
+          let id = getId(index);
+          featuredList[id] = id;
+          localStorage.setItem("featuredList", JSON.stringify(featuredList));
+        } else {
+          let id = getId(index);
+          delete featuredList[id];
+          localStorage.setItem("featuredList", JSON.stringify(featuredList));
+        }
+        renderFeatured(); 
+        rerenderPinWithLS();
+        document.querySelectorAll(".pin-btn-all")[index].parentNode.parentNode.parentNode.parentNode.parentNode.scrollIntoView();
+      }
+      
+      function removePastEventPins() {
+        featuredList = JSON.parse(localStorage.getItem("featuredList"));
+        if (featuredList == null) return;
+
+        let newfeaturedList = featuredList;
+        for (let j in featuredList) {
+          for(let i = 0; i < listOfEventsCopy.length; i++) {
+            if (listOfEventsCopy[i].isManuallyAdded) {
+              if (listOfEventsCopy[i].uuid == featuredList[j]) {
+                break;
+              }
+            } else { // not manually added
+              if (listOfEventsCopy[i].linkToOriginalPost == featuredList[j]) {
+                break;
+              }
+            }
+            if (i == listOfEventsCopy.length - 1) {
+              let id = featuredList[j];
+              delete newfeaturedList[id];
+            }
+          }
+        }
+        featuredList = newfeaturedList;
+        localStorage.setItem("featuredList", JSON.stringify(featuredList));
+      }
+
+      function removeFeatured(index) {
+        let pinBtn = document.querySelectorAll(".pin-btn-featured");
+        if ($(pinBtn[index]).attr("value") != "unpin") return;
+
+        let id;
+        if (featuredListOfEvents[index].isManuallyAdded) {
+          id = featuredListOfEvents[index].uuid;
+        } else {
+          id = featuredListOfEvents[index].linkToOriginalPost;
+        }
+        delete featuredList[id];
+        localStorage.setItem("featuredList", JSON.stringify(featuredList));
+        
+        renderFeatured(); 
+        rerenderPinWithLS();
+      }
+      
+      
+      function rerenderPinWithLS() {
+        featuredList = JSON.parse(localStorage.getItem("featuredList"));
+        if (featuredList == null) return;
+        let pinBtn = document.querySelectorAll(".pin-btn-all");
+        for(let i = 0; i < listOfEvents.length; i++) {
+          $(pinBtn[i]).val("pin");
+          $(pinBtn[i]).html(`
+            <i class="bi bi-pin-fill"></i> Pin
+          `);
+          $(pinBtn[i]).removeClass("btn-danger").addClass("btn-primary");
+
+          for (let j in featuredList) {
+            let id = getId(i);
+            if (id == featuredList[j]) {
+              $(pinBtn[i]).val("unpin");
+              $(pinBtn[i]).html(`
+                <i class="bi bi-pin-angle-fill"></i> Unpin 
+              `);
+              $(pinBtn[i]).removeClass("btn-primary").addClass("btn-danger");
+              break;
+            } 
+          }
+        }
+      }
+      
+
+      // Expand button for each event in list
+      function expandEventAll(index) {
+        let extraInfo = document.querySelectorAll(".extra-info-all");
+        $(extraInfo[index]).toggle();
+      }
+      function expandEventFeatured(index) {
+        let extraInfo = document.querySelectorAll(".extra-info-featured");
+        $(extraInfo[index]).toggle();
+      }
+      
+
+      // Share button for copy to clipboard
+      function copyToClipboard(url) {
+        navigator.clipboard.writeText(url).then(function() {
+          /* clipboard successfully set */
+          alert("link to original post copied to clipboard: \n" + url);
+        }, function() {
+          /* clipboard write failed */
+          alert("failed to copy url");
+        });
+      }
+
+      // Change Display 
+      let display = 0; // 0 = list view; 1 = calendar view
+      $("#display-section").change(() => {
+        // console.log(display);
+        if (display === 0) {
+          display = 1;
+          $('#calendar-styles').show();
+          $('#list-container').hide();
+        } else {
+          display = 0;
+          $('#list-container').show();
+          $('#calendar-styles').hide();
+        }
+      })
+
+
+      
+    </script>
+  </body>
+</html>
